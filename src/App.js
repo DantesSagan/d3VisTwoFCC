@@ -29,13 +29,13 @@ export default function App() {
     let xScale;
     let yScale;
 
-    let xValue = (item) => item.Year;
+    let xValue = values.map((item) => item.Year);
     let yValue = (item) => item.Time;
 
     let xAxisScale;
     let yAxisScale;
 
-    let svg = d3.select('svg').attr('id', 'corona');
+    let svg = d3.select('svg');
 
     const infoText = () => {
       let textContainer = d3
@@ -68,32 +68,32 @@ export default function App() {
         .style('font-size', '1.5em');
     };
 
-    const formatTime = (time) => {
-      const minutes = Math.floor(time / 60);
-      const ss = time % 60;
-      return (
-        (minutes < 10 ? '0' + minutes : minutes) +
-        ':' +
-        (ss < 10 ? '0' + ss : ss)
-      );
-    };
+    // const formatTime = (time) => {
+    //   const minutes = Math.floor(time / 60);
+    //   const ss = time % 60;
+    //   return (
+    //     (minutes < 10 ? '0' + minutes : minutes) +
+    //     ':' +
+    //     (ss < 10 ? '0' + ss : ss)
+    //   );
+    // };
+
     const drawCanvas = () => {
       svg.attr('width', width);
       svg.attr('height', height);
     };
     const generateScales = () => {
+      const dataTime = values.map((item) => {
+        return item.Time;
+      });
       yScale = d3
         .scaleLinear()
-        .domain(extent(values, yValue))
+        .domain(extent(dataTime))
         .range([0, height - 2 * padding]);
-
-      console.log(yScale);
 
       const dataYear = values.map((item) => {
         return new Date(item.Year);
       });
-
-      console.log(dataYear);
 
       xScale = d3
         .scaleLinear()
@@ -102,15 +102,11 @@ export default function App() {
 
       xAxisScale = d3
         .scaleLinear()
-        .domain(
-          extent(values, (item) => {
-            return item.Year;
-          })
-        )
+        .domain(extent(dataYear))
         .range([padding, width - padding]);
 
       yAxisScale = d3
-        .scaleTime()
+        .scaleLinear()
         .domain(
           extent(values, (item) => {
             return item.Time;
@@ -134,19 +130,13 @@ export default function App() {
         .enter()
         .append('circle')
         .attr('class', 'dot')
-        .attr('data-xvalue', () => {
-          return xValue;
+        .attr('data-xvalue', (item) => {
+          return item.Year;
         })
-        .attr('data-yvalue', () => {
-          return yValue;
+        .attr('data-yvalue', (item) => {
+          return item.Time;
         })
-        .attr('cx', (item, i) => {
-          return xScale(i);
-        })
-        .attr('cy', (item) => {
-          return height - padding - yScale(item.Time);
-        })
-        .attr('r', (item) => 5);
+        .attr('r', 5);
 
       svg
         .selectAll('text')
@@ -161,7 +151,7 @@ export default function App() {
             yScale
         )
         .attr('x', (item) => xScale(item.Year))
-        .attr('y', (item) => 10);
+        .attr('y', (item) => yScale(item.Time));
     };
 
     const generateAxis = () => {
@@ -190,7 +180,7 @@ export default function App() {
       <h2 className='text-center text-4xl p-4'>
         Visualize Data with a Scatterplot Graph
       </h2>
-      <svg className='App'>
+      <svg>
         <text x={width - 900} y={height - 20}></text>
       </svg>
       <div className='hoverHolder shadow-inner rounded-t-lg font-bold '></div>

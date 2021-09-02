@@ -3,12 +3,14 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: black;
 }
 
 svg {
-  background-color: #85ffbd;
-  background-image: linear-gradient(45deg, #85ffbd 0%, #fffb7d 100%);
+  background-color: #ffdee9;
+  background-image: -webkit-linear-gradient(0deg, #ffdee9 0%, #b5fffc 100%);
+  background-image: -moz-linear-gradient(0deg, #ffdee9 0%, #b5fffc 100%);
+  background-image: -o-linear-gradient(0deg, #ffdee9 0%, #b5fffc 100%);
+  background-image: linear-gradient(0deg, #ffdee9 0%, #b5fffc 100%);
   box-shadow: 0 8px 32px 0 rgba(156, 146, 172, 0.9);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
