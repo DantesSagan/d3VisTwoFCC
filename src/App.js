@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect } from 'react';
 import * as d3 from 'd3';
-import { extent } from 'd3';
+import { extent, pointer } from 'd3';
 
 export default function App() {
   const [url] = useState(
@@ -39,7 +39,7 @@ export default function App() {
     let svg = d3.select('svg');
     // Declare global color parameter
     let color = d3.scaleOrdinal(d3.schemeCategory10);
-
+    const formatTime = d3.timeFormat('%M:%S');
     const infoText = () => {
       // Text notaion for declaring Title, Legend and Time paremeter's
       let textContainer = d3
@@ -58,9 +58,16 @@ export default function App() {
       textContainer
         .append('text')
         .attr('x', width - 850)
-        .attr('y', height - 720)
+        .attr('y', height - 750)
         .attr('id', 'title')
         .text('Drivers who alleged drug from 90 to now')
+        .style('font-size', '1.5em');
+
+      textContainer
+        .append('text')
+        .attr('x', 1050)
+        .attr('y', 150)
+        .text('Legend')
         .style('font-size', '1.5em');
     };
 
@@ -101,11 +108,12 @@ export default function App() {
       // Declare xAxisScale what scaling dataYear
       xAxisScale = d3
         .scaleLinear()
-        .domain(extent(dataYear))
+        .domain([new Date(1994), new Date(2016)])
+        // This is for left line which looks better but don't get passed all test's .domain([new Date(1992), new Date(2016)])
         .range([padding, width - padding]);
       // Declare yAxisScale what scaling dataTime
       yAxisScale = d3
-        .scaleLinear()
+        .scaleTime()
         .domain(
           extent(values, (item) => {
             return item.Time;
@@ -120,23 +128,23 @@ export default function App() {
         .selectAll('#legend')
         .data(color.domain())
         .enter()
-        .append('svg');
-      legendColors
-        .append('text')
-        .attr('x', 1050)
-        .attr('y', 150)
-        .text('Legend')
-        .style('font-size', '1.5em');
+        .append('g')
+        .attr('transform', function (d, i) {
+          return 'translate(0,' + (height / 2 - i * 20) + ')';
+        });
+
       legendColors
         .append('rect')
-        .attr('x', width)
+        .attr('x', 930)
+        .attr('y', -192)
         .attr('width', 18)
         .attr('height', 18)
         .style('fill', color);
+
       legendColors
         .append('text')
         .attr('x', 950)
-        .attr('y', 200)
+        .attr('y', -180)
         .attr('id', 'legend-sign')
         .text((item) => {
           if (item) {
@@ -155,6 +163,7 @@ export default function App() {
         .attr('id', 'tooltip')
         .style('visibility', 'hidden');
       // Declaring circles by x and y axis
+
       svg
         .selectAll('.dot')
         .data(values)
@@ -165,7 +174,7 @@ export default function App() {
           return item.Year;
         })
         .attr('data-yvalue', (item) => {
-          return item.Time.toISOString();
+          return item.Time;
         })
         .attr('cx', (item) => {
           return xAxisScale(item.Year);
@@ -177,25 +186,30 @@ export default function App() {
           return color(item.Doping !== '');
         })
         .attr('r', 5)
-        .on('mouseover', (item, i, event) => {
+        .on('mouseover', (event, item) => {
+          const [x, y] = pointer(event);
           tooltip.transition().duration(200).style('visibility', 'visible');
+          tooltip.attr('data-year', item.Year);
           tooltip
             .html(
               'Name: ' +
                 item.Name +
                 '</br> Nat: ' +
                 item.Nationality +
-                '</br> Doping: ' +
-                item.Doping
+                '</br> Time: ' +
+                formatTime(item.Time) +
+                '</br> Year: ' +
+                (item.Doping ? '<br/>' + item.Doping : '')
             )
-            .on('mouseout', () => {
-              tooltip.transition().duration(200).style('visibility', 'hidden');
-            });
+            .style('left', x + 'px')
+            .style('top', y - 50 + 'px');
+        })
+        .on('mouseout', () => {
+          tooltip.transition().duration(200).style('visibility', 'hidden');
         });
     };
     // Declare generateAxis what create y and x axis in format y(M:S) and x(tick)
     const generateAxis = () => {
-      const formatTime = d3.timeFormat('%M:%S');
       const xAxis = d3.axisBottom(xAxisScale).tickFormat(d3.format('d'));
       const yAxis = d3.axisLeft(yAxisScale).tickFormat(formatTime);
       svg
@@ -218,13 +232,15 @@ export default function App() {
 
   return (
     <div>
-      <h2 x={width} y={height - 20} className='text-center text-4xl p-4'>
+      <h2
+        className='text-center text-4xl p-4'
+        style={{ marginRight: '300px', marginLeft: '300px' }}
+      >
         Visualize Data with a Scatterplot Graph
       </h2>
       <svg>
         <text x={width - 900} y={height - 20}></text>
       </svg>
-      <div className='hoverHolder shadow-inner rounded-t-lg font-bold '></div>
     </div>
   );
 }

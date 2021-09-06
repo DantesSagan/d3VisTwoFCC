@@ -17,12 +17,11 @@ svg {
   border-radius: 15px;
 }
 #tooltip {
-  height: 25px;
-  width: 50px;
   padding: 4px;
-  font-size: 2em;
-  background-image: linear-gradient(45deg, #85ffbd 0%, #fffb7d 100%);
-  border: 5px solid black;
+  font-size: 0.8em;
+  position: absolute;
+  background-image: linear-gradient(45deg, #b5fffc 10%, #fffb7d 100%);
+  border: 2px solid black;
   border-radius: 15px;
   color: black;
 }
