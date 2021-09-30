@@ -15,7 +15,7 @@ export default function App() {
     // Getting XMLTttpReques from url
     req.open('GET', url, true);
     req.onload = () => {
-      // Parsing json fomr url
+      // Parsing json form url
       data = JSON.parse(req.responseText);
       // Our data which contains data's what we need
       values = data;
